@@ -1,4 +1,4 @@
-package pers.lagomoro.railwayticket.mapper;
+package pers.lagomoro.railway_system.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 

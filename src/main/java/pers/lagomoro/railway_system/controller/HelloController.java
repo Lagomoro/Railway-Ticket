@@ -1,4 +1,4 @@
-package pers.lagomoro.railwayticket.controller;
+package pers.lagomoro.railway_system.controller;
 
 
         import org.springframework.web.bind.annotation.RequestMapping;

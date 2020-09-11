@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
+    <![CDATA[
     <context id="context_user">
         <!-- 生成的Java文件的编码 -->
         <property name="javaFileEncoding" value="UTF-8"/>
@@ -16,9 +17,10 @@
         </commentGenerator>
 
         <!--数据库链接地址账号密码-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_user?useUnicode=true&amp;characterEncoding=utf8"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_user?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true&amp;allowMultiQueries=true&amp;serverTimezone=UTC"
                         userId="root" password="ghost2k3">
+            <property name="nullCatalogMeansCurrent" value="true" />
         </jdbcConnection>
 
         <!-- 类型转换 -->
@@ -29,8 +31,14 @@
 
         <!--生成DataObject类存放位置-->
         <javaModelGenerator targetPackage="pers.lagomoro.railway_system.entity" targetProject="src/main/java">
-            <property name="enableSubPackages" value="true"/>
-            <property name="trimStrings" value="true"/>
+            <!-- 是否允许子包 -->
+            <property name="enableSubPackages" value="false" />
+            <!-- 是否对modal添加构造函数 -->
+            <property name="constructorBased" value="true" />
+            <!-- 是否清理从数据库中查询出的字符串左右两边的空白字符 -->
+            <property name="trimStrings" value="true" />
+            <!-- 建立modal对象是否不可改变 即生成的modal对象不会有setter方法，只有构造方法 -->
+            <property name="immutable" value="false" />
         </javaModelGenerator>
 
         <!--生成映射文件存放位置-->
@@ -79,9 +87,10 @@
         </commentGenerator>
 
         <!--数据库链接地址账号密码-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_train?useUnicode=true&amp;characterEncoding=utf8"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_train?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true&amp;allowMultiQueries=true&amp;serverTimezone=UTC"
                         userId="root" password="ghost2k3">
+            <property name="nullCatalogMeansCurrent" value="true" />
         </jdbcConnection>
 
         <!-- 类型转换 -->
@@ -92,8 +101,14 @@
 
         <!--生成DataObject类存放位置-->
         <javaModelGenerator targetPackage="pers.lagomoro.railway_system.entity" targetProject="src/main/java">
-            <property name="enableSubPackages" value="true"/>
-            <property name="trimStrings" value="true"/>
+            <!-- 是否允许子包 -->
+            <property name="enableSubPackages" value="false" />
+            <!-- 是否对modal添加构造函数 -->
+            <property name="constructorBased" value="true" />
+            <!-- 是否清理从数据库中查询出的字符串左右两边的空白字符 -->
+            <property name="trimStrings" value="true" />
+            <!-- 建立modal对象是否不可改变 即生成的modal对象不会有setter方法，只有构造方法 -->
+            <property name="immutable" value="false" />
         </javaModelGenerator>
 
         <!--生成映射文件存放位置-->
@@ -125,7 +140,7 @@
         <table schema="railway_train" tableName="rule_enabled" domainObjectName="RuleEnabled"
                enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false" ></table>
-        <table schema="railway_train" tableName="station" domainObjectName="Carriage"
+        <table schema="railway_train" tableName="station" domainObjectName="Station"
                enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false" ></table>
         <table schema="railway_train" tableName="train" domainObjectName="Train"
@@ -151,9 +166,10 @@
         </commentGenerator>
 
         <!--数据库链接地址账号密码-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_cache?useUnicode=true&amp;characterEncoding=utf8"
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://188.131.156.44:3306/railway_cache?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true&amp;allowMultiQueries=true&amp;serverTimezone=UTC"
                         userId="root" password="ghost2k3">
+            <property name="nullCatalogMeansCurrent" value="true" />
         </jdbcConnection>
 
         <!-- 类型转换 -->
@@ -164,8 +180,14 @@
 
         <!--生成DataObject类存放位置-->
         <javaModelGenerator targetPackage="pers.lagomoro.railway_system.entity" targetProject="src/main/java">
-            <property name="enableSubPackages" value="true"/>
-            <property name="trimStrings" value="true"/>
+            <!-- 是否允许子包 -->
+            <property name="enableSubPackages" value="false" />
+            <!-- 是否对modal添加构造函数 -->
+            <property name="constructorBased" value="true" />
+            <!-- 是否清理从数据库中查询出的字符串左右两边的空白字符 -->
+            <property name="trimStrings" value="true" />
+            <!-- 建立modal对象是否不可改变 即生成的modal对象不会有setter方法，只有构造方法 -->
+            <property name="immutable" value="false" />
         </javaModelGenerator>
 
         <!--生成映射文件存放位置-->
@@ -189,5 +211,6 @@
                enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false" ></table>
     </context>
+    ]]>
 </generatorConfiguration>
 

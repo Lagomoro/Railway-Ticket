@@ -38,7 +38,7 @@ public class HelloController {
 
     @GetMapping("/user")
     public String users1() {
-        return userService.selectByPrimaryKey(1).getUsername();
+        return userService.getUserByUid(1).getUsername();
     }
 
 }

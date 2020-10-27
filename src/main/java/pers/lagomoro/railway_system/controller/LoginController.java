@@ -28,22 +28,39 @@ public class LoginController {
                                  @CookieValue(value = "token", defaultValue = "null") String token){
         int uid = TokenManager.checkToken(token);
         if(uid > 0){
-            return Integer.toString(uid);
+            return "{\"status\": 200,\"msg\":\"Login successfully!\"}";
         }
-        return "Failed!";
+
+        TokenManager.removeToken(token);
+
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "{\"status\": 500,\"msg\":\"Login failed: Invalid token!\"}";
     }
 
     @GetMapping("/pwd.php")
     public String LoginWithPassword(HttpServletRequest request, HttpServletResponse response) {
-        request.getParameter("canshu1");
-        TokenManager.removeAllTokenFromUser(1);
-        TokenManager.addToken("0121", 1);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
 
-        Cookie cookie = new Cookie("token", "0121");
-        cookie.setMaxAge(TokenManager.TOKEN_TIME);
-        response.addCookie(cookie);
+        User user = userService.getUserByUsername(username);
+        if(user == null)
+            return "{\"status\": 500,\"msg\":\"Login failed: Invalid user!\"}";
+        if(password.equals(user.getPassword())){
+            int value = (int)Math.floor(Math.random() * 100000000);
+            String token = username + value;
 
-        return "Success!";
+            TokenManager.removeAllTokenFromUser(user.getUid());
+            TokenManager.addToken(token, user.getUid());
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(TokenManager.TOKEN_TIME);
+            response.addCookie(cookie);
+            return "{\"status\": 200,\"msg\":\"Login successfully!\"}";
+        }else{
+            return "{\"status\": 501,\"msg\":\"Login failed: Invalid password!\"}";
+        }
     }
 
     @GetMapping("/logout.php")
@@ -55,7 +72,7 @@ public class LoginController {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
-        return "Failed!";
+        return "{\"status\": 200,\"msg\":\"Logout successfully!\"}";
     }
 
 }

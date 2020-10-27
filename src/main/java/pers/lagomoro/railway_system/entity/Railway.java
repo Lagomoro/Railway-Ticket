@@ -5,12 +5,12 @@ public class Railway {
 
     private Integer sidNext;
 
-    private Integer diatance;
+    private Integer distance;
 
-    public Railway(Integer sidPrev, Integer sidNext, Integer diatance) {
+    public Railway(Integer sidPrev, Integer sidNext, Integer distance) {
         this.sidPrev = sidPrev;
         this.sidNext = sidNext;
-        this.diatance = diatance;
+        this.distance = distance;
     }
 
     public Railway() {
@@ -33,11 +33,11 @@ public class Railway {
         this.sidNext = sidNext;
     }
 
-    public Integer getDiatance() {
-        return diatance;
+    public Integer getDistance() {
+        return distance;
     }
 
-    public void setDiatance(Integer diatance) {
-        this.diatance = diatance;
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 }

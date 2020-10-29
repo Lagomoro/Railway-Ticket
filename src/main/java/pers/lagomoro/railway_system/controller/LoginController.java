@@ -1,12 +1,8 @@
 package pers.lagomoro.railway_system.controller;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import pers.lagomoro.railway_system.entity.User;
 import pers.lagomoro.railway_system.manager.TokenManager;
-import pers.lagomoro.railway_system.mapper.UserMapper;
 import pers.lagomoro.railway_system.service.impl.UserServiceImpl;
 
 import javax.servlet.http.Cookie;
@@ -23,7 +19,7 @@ public class LoginController {
         this.userService = userService;
     }
 
-    @GetMapping("/token.php")
+    @GetMapping("/token")
     public String LoginWithToken(HttpServletRequest request, HttpServletResponse response,
                                  @CookieValue(value = "token", defaultValue = "null") String token){
         int uid = TokenManager.checkToken(token);
@@ -39,7 +35,7 @@ public class LoginController {
         return "{\"status\": 500,\"msg\":\"Login failed: Invalid token!\"}";
     }
 
-    @GetMapping("/pwd.php")
+    @GetMapping("/pwd")
     public String LoginWithPassword(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -63,7 +59,7 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/logout.php")
+    @GetMapping("/logout")
     public String Logout(HttpServletRequest request, HttpServletResponse response,
                                  @CookieValue(value = "token", defaultValue = "null") String token){
         TokenManager.removeToken(token);

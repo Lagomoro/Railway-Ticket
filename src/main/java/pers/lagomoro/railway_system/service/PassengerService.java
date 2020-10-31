@@ -6,7 +6,13 @@ import java.util.List;
 
 public interface PassengerService {
 
-    List<Passenger> getPassenger(String uid);
+    List<Passenger> getPassengerByUid(int uid);
 
-    int addPassenger(Passenger passenger);
+    Passenger getPassengerByPid(int pid);
+
+    void addPassenger(Passenger passenger);
+
+    void deletePassenger(int pid);
+
+    void modifyPassenger(Passenger passenger);
 }

@@ -53,7 +53,7 @@ public class LoginController {
             Cookie cookie = new Cookie("token", token);
             cookie.setMaxAge(TokenManager.TOKEN_TIME);
             response.addCookie(cookie);
-            return "{\"status\": 200,\"msg\":\"Login successfully!\"}";
+            return "{\"status\": 200,\"token\":\"" + token + "\", \"msg\":\"Login successfully!\"}";
         }else{
             return "{\"status\": 501,\"msg\":\"Login failed: Invalid password!\"}";
         }

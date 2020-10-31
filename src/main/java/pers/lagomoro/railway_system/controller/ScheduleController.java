@@ -37,7 +37,7 @@ public class ScheduleController {
     private String getScheduleDataByTid(String tid) {
         List<SchedulePlus> scheduleList = this.getScheduleListByTid(tid);
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
         StringBuilder str = new StringBuilder();
         str.append("\"schedule\":[");
         Date lastTime = null, temp = null;

@@ -18,12 +18,27 @@ public class PassengerServiceImpl implements PassengerService {
     private PassengerMapper passengerMapper;
 
     @Override
-    public List<Passenger> getPassenger(String uid) {
-        return passengerMapper.getPassenger(uid);
+    public List<Passenger> getPassengerByUid(int uid) {
+        return passengerMapper.getPassengerByUid(uid);
     }
 
     @Override
-    public int addPassenger(Passenger passenger) {
-        return passengerMapper.addPassenger(passenger);
+    public Passenger getPassengerByPid(int pid) {
+        return passengerMapper.getPassengerByPid(pid);
+    }
+
+    @Override
+    public void addPassenger(Passenger passenger) {
+        passengerMapper.addPassenger(passenger);
+    }
+
+    @Override
+    public void deletePassenger(int pid) {
+        passengerMapper.deletePassenger(pid);
+    }
+
+    @Override
+    public void modifyPassenger(Passenger passenger) {
+        passengerMapper.modifyPassenger(passenger);
     }
 }

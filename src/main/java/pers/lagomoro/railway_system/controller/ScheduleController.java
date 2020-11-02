@@ -2,9 +2,10 @@ package pers.lagomoro.railway_system.controller;
 
 import org.springframework.web.bind.annotation.*;
 import pers.lagomoro.railway_system.entity.SchedulePlus;
-import pers.lagomoro.railway_system.entity.Station;
+import pers.lagomoro.railway_system.entity.Seat;
+import pers.lagomoro.railway_system.service.impl.RailwayServiceImpl;
 import pers.lagomoro.railway_system.service.impl.ScheduleServiceImpl;
-import pers.lagomoro.railway_system.service.impl.StationServiceImpl;
+import pers.lagomoro.railway_system.service.impl.TemplateSeatServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,9 +17,14 @@ import java.util.*;
 public class ScheduleController {
 
     private final ScheduleServiceImpl scheduleService;
+    private final RailwayServiceImpl railwayService;
+    private final TemplateSeatServiceImpl templateSeatService;
 
-    public ScheduleController(ScheduleServiceImpl scheduleService) {
+    public ScheduleController(ScheduleServiceImpl scheduleService, RailwayServiceImpl railwayService,
+                              TemplateSeatServiceImpl templateSeatService) {
         this.scheduleService = scheduleService;
+        this.railwayService = railwayService;
+        this.templateSeatService = templateSeatService;
     }
 
     private List<SchedulePlus> getScheduleListByTid(String tid) {
@@ -43,8 +49,8 @@ public class ScheduleController {
         Date lastTime = null, temp = null;
         String time, stop;
         for (SchedulePlus schedule : scheduleList){
-            time = lastTime == null ? "-" : Long.toString((schedule.getArrivalTime().getTime() - lastTime.getTime())/(1000 * 60));
-            stop = Long.toString((schedule.getDepartureTime().getTime() - schedule.getArrivalTime().getTime())/(1000 * 60));
+            time = lastTime == null ? "-" : Long.toString((schedule.getArrivalTime().getTime() - lastTime.getTime())/(1000 * 60)) + "分钟";
+            stop = Long.toString((schedule.getDepartureTime().getTime() - schedule.getArrivalTime().getTime())/(1000 * 60)) + "分钟";
             lastTime = schedule.getArrivalTime();
 
             str.append("{");
@@ -154,10 +160,72 @@ public class ScheduleController {
         return str.toString();
     }
 
+    private int generateJourney(List<SchedulePlus> scheduleList, int sid1, int sid2) {
+        boolean start = false;
+        int temp = 1;
+        int journey = 0;
+        for (SchedulePlus schedule : scheduleList){
+            if(schedule.getSid() == sid1)
+                start = true;
+            if(schedule.getSid() == sid2)
+                break;
+            if(start)
+                journey += temp;
+            temp *= 2;
+        }
+        return journey;
+    }
+
+    private int getPrice(List<SchedulePlus> scheduleList, int sid1, int sid2) {
+        boolean start = false;
+        int lastSid = 0;
+        int price = 0;
+        for (SchedulePlus schedule : scheduleList){
+            if(start)
+                price += 2 * railwayService.getRailway(lastSid, schedule.getSid()).getDistance();
+            lastSid = schedule.getSid();
+            if(schedule.getSid() == sid1)
+                lastSid = schedule.getSid();
+            start = true;
+            if(schedule.getSid() == sid2)
+                break;
+        }
+        return price;
+    }
+
+    private boolean fitJourney(int journey, int fit) {
+        String s_journey = new StringBuilder(Integer.toBinaryString(journey)).reverse().toString();
+        String s_fit = new StringBuilder(Integer.toBinaryString(fit)).reverse().toString();
+
+        boolean isFit = true;
+        int length = Math.min(s_fit.length(), s_journey.length());
+        for(int i = 0; i < length; i++){
+            if(s_fit.charAt(i) == '1' && s_journey.charAt(i) == '1'){
+                isFit = false;
+                break;
+            }
+        }
+
+        return isFit;
+    }
+
+    private int getTicket(String tid, String date, int journey){
+        int seat_id = 0;
+        List<Seat> seatList = templateSeatService.getSeatByInfo(tid, date);
+        int seatNumber = 0;
+        for(Seat seat: seatList){
+            if(this.fitJourney(journey, seat.getJourney())){
+                seatNumber ++;
+            }
+        }
+        return seatNumber;
+    }
+
     @GetMapping("/buy")
     public String GetScheduleBuy(HttpServletRequest request, HttpServletResponse response){
         String station1 = request.getParameter("station1");
         String station2 = request.getParameter("station2");
+        String date = request.getParameter("date");
         List<SchedulePlus> scheduleList = scheduleService.getAllSchedule();
 
         HashMap<String, Integer> tidList = new HashMap<String, Integer>();
@@ -181,14 +249,34 @@ public class ScheduleController {
                 SimpleDateFormat format = new SimpleDateFormat("HH:mm");
                 SchedulePlus start = scheduleTidList.get(0);
                 SchedulePlus end = scheduleTidList.get(scheduleTidList.size() - 1);
-                String time = Long.toString((start.getDepartureTime().getTime() - end.getArrivalTime().getTime())/(1000 * 60));
+                SchedulePlus s1 = null, s2 = null;
+                for(SchedulePlus schedule: scheduleTidList){
+                    if(schedule.getName().equals(station1))
+                        s1 = schedule;
+                    if(schedule.getName().equals(station2))
+                        s2 = schedule;
+                }
+                long time = (s2.getArrivalTime().getTime() - s1.getDepartureTime().getTime())/(1000 * 60);
+
+                String date_phrase = "2020-" + date.substring(0, 2) + "-" + date.substring(3, 5);
+
+                int price = this.getPrice(scheduleTidList, s1.getSid(), s2.getSid());
+                int journey = this.generateJourney(scheduleTidList, s1.getSid(), s2.getSid());
+                int ticket = this.getTicket(tid, date_phrase, journey);
 
                 str.append("{\"tid\":\"" + tid + "\",");
                 str.append("\"start\":\"" + start.getName() + "\",");
                 str.append("\"end\":\"" + end.getName() + "\",");
-                str.append("\"time_a\":\"" + format.format(start.getDepartureTime().getTime()) + "\",");
-                str.append("\"time_b\":\"" + format.format(end.getArrivalTime().getTime()) + "\",");
-                str.append("\"time\":\"" + time + "\",");
+                str.append("\"s1\":\"" + s1.getName() + "\",");
+                str.append("\"s2\":\"" + s2.getName() + "\",");
+                str.append("\"date\":\""+ date_phrase + "\",");
+                str.append("\"sid1\":" + s1.getSid() + ",");
+                str.append("\"sid2\":" + s2.getSid() + ",");
+                str.append("\"price\":" + price + ",");
+                str.append("\"ticket\":" + ticket + ",");
+                str.append("\"time_a\":\"" + format.format(s1.getDepartureTime().getTime()) + "\",");
+                str.append("\"time_b\":\"" + format.format(s2.getArrivalTime().getTime()) + "\",");
+                str.append("\"time\":" + time + ",");
                 str.append(this.getScheduleDataByTid(tid));
                 str.append("},");
                 have = true;

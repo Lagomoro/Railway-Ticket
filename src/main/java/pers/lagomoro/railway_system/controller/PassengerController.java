@@ -46,12 +46,12 @@ public class PassengerController {
         int uid = TokenManager.checkToken(token);
         if(uid > 0){
             if(uid != passenger.getUid()){
-                return "{\"status\": 501,\"msg\":\"Add failed: Invalid User!\"}";
+                return "{\"status\": 501,\"msg\":\"Del failed: Invalid User!\"}";
             }
             passengerService.deletePassenger(pid);
-            return "{\"status\": 200,\"msg\":\"Add successfully!\"}";
+            return "{\"status\": 200,\"msg\":\"Del successfully!\"}";
         }
-        return "{\"status\": 500,\"msg\":\"Add failed: Invalid token!\"}";
+        return "{\"status\": 500,\"msg\":\"Del failed: Invalid token!\"}";
     }
 
     @GetMapping("/modify")

@@ -1,4 +1,4 @@
-package pers.lagomoro.railway_system.entity.unused;
+package pers.lagomoro.railway_system.entity;
 
 import java.util.Date;
 
@@ -7,13 +7,13 @@ public class Order {
 
     private Integer uid;
 
-    private Date time;
+    private String time;
 
     private Integer price;
 
     private Integer status;
 
-    public Order(Integer oid, Integer uid, Date time, Integer price, Integer status) {
+    public Order(Integer oid, Integer uid, String time, Integer price, Integer status) {
         this.oid = oid;
         this.uid = uid;
         this.time = time;
@@ -41,11 +41,11 @@ public class Order {
         this.uid = uid;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.time = time;
     }
 

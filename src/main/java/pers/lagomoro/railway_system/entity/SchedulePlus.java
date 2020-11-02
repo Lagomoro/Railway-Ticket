@@ -6,6 +6,8 @@ public class SchedulePlus {
 
     private String tid;
 
+    private Integer sid;
+
     private String name;
 
     private Date date;
@@ -18,8 +20,9 @@ public class SchedulePlus {
 
     private String entrance;
 
-    public SchedulePlus(String tid, String name, Date date, Integer order, Date arrival_time, Date departure_time, String entrance) {
+    public SchedulePlus(String tid, Integer sid, String name, Date date, Integer order, Date arrival_time, Date departure_time, String entrance) {
         this.tid = tid;
+        this.sid = sid;
         this.name = name;
         this.date = date;
         this.order = order;
@@ -38,6 +41,14 @@ public class SchedulePlus {
 
     public void setTid(String tid) {
         this.tid = tid == null ? null : tid.trim();
+    }
+
+    public Integer getSid() {
+        return sid;
+    }
+
+    public void setSid(Integer sid) {
+        this.sid = sid;
     }
 
     public String getName() { return name; }

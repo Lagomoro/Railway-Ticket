@@ -18,8 +18,8 @@ public interface TemplateSeatMapper {
     Seat getSeatBySeatId(int seat_id);
 
     @Select("insert into template_seat (tid, date, carriage_order, seat_number) values " +
-            "(#{tid, jdbcType=INTEGER}, #{date, jdbcType=VARCHAR}, " +
-            "#{carriageOrder, jdbcType=INTEGER}, #{seat_number, jdbcType=VARCHAR})")
+            "(#{tid, jdbcType=VARCHAR}, #{date, jdbcType=VARCHAR}, " +
+            "#{carriage_order, jdbcType=INTEGER}, #{seat_number, jdbcType=VARCHAR})")
     void addSeat(Seat seat);
 
     @Delete("delete from template_seat where seat_id = #{seat_id, jdbcType=INTEGER}")

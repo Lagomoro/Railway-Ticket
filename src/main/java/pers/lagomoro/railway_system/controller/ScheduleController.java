@@ -1,6 +1,8 @@
 package pers.lagomoro.railway_system.controller;
 
 import org.springframework.web.bind.annotation.*;
+import pers.lagomoro.railway_system.entity.Carriage;
+import pers.lagomoro.railway_system.entity.Link;
 import pers.lagomoro.railway_system.entity.SchedulePlus;
 import pers.lagomoro.railway_system.entity.Seat;
 import pers.lagomoro.railway_system.service.impl.RailwayServiceImpl;
@@ -72,6 +74,8 @@ public class ScheduleController {
         String tid = request.getParameter("tid");
 
         List<SchedulePlus> scheduleTidList = this.getScheduleListByTid(tid);
+        if(scheduleTidList == null || scheduleTidList.size() == 0)
+            return "{\"status\": 200,\"data\":[]}";
         SchedulePlus start = scheduleTidList.get(0);
         SchedulePlus end = scheduleTidList.get(scheduleTidList.size() - 1);
 
@@ -128,11 +132,15 @@ public class ScheduleController {
 
         HashMap<String, Integer> tidList = new HashMap<String, Integer>();
         for (SchedulePlus schedule : scheduleList){
-            if(schedule.getName().equals(station1) || schedule.getName().equals(station2)){
+            if(schedule.getName().equals(station1)){
                 if(tidList.containsKey(schedule.getTid())){
-                    tidList.put(schedule.getTid(), 2);
+                    tidList.put(schedule.getTid(), 0);
                 }else{
                     tidList.put(schedule.getTid(), 1);
+                }
+            }else if(schedule.getName().equals(station2)){
+                if(tidList.containsKey(schedule.getTid())){
+                    tidList.put(schedule.getTid(), 2);
                 }
             }
         }
@@ -209,13 +217,20 @@ public class ScheduleController {
         return isFit;
     }
 
-    private int getTicket(String tid, String date, int journey){
-        int seat_id = 0;
+    private int[] getTicket(String tid, String date, int journey){
         List<Seat> seatList = templateSeatService.getSeatByInfo(tid, date);
-        int seatNumber = 0;
+        List<Link> carriageLink = scheduleService.getTrainLink(tid);
+        int[] seatNumber = new int[3];
+
+        int index = 0;
         for(Seat seat: seatList){
+            for(Link link : carriageLink){
+                if(link.getOrder() == seat.getCarriageOrder()){
+                    index = link.getCid() - 1;
+                }
+            }
             if(this.fitJourney(journey, seat.getJourney())){
-                seatNumber ++;
+                seatNumber[2 - index] ++;
             }
         }
         return seatNumber;
@@ -230,11 +245,15 @@ public class ScheduleController {
 
         HashMap<String, Integer> tidList = new HashMap<String, Integer>();
         for (SchedulePlus schedule : scheduleList){
-            if(schedule.getName().equals(station1) || schedule.getName().equals(station2)){
+            if(schedule.getName().equals(station1)){
                 if(tidList.containsKey(schedule.getTid())){
-                    tidList.put(schedule.getTid(), 2);
+                    tidList.put(schedule.getTid(), 0);
                 }else{
                     tidList.put(schedule.getTid(), 1);
+                }
+            }else if(schedule.getName().equals(station2)){
+                if(tidList.containsKey(schedule.getTid())){
+                    tidList.put(schedule.getTid(), 2);
                 }
             }
         }
@@ -262,7 +281,7 @@ public class ScheduleController {
 
                 int price = this.getPrice(scheduleTidList, s1.getSid(), s2.getSid());
                 int journey = this.generateJourney(scheduleTidList, s1.getSid(), s2.getSid());
-                int ticket = this.getTicket(tid, date_phrase, journey);
+                int[] ticket = this.getTicket(tid, date_phrase, journey);
 
                 str.append("{\"tid\":\"" + tid + "\",");
                 str.append("\"start\":\"" + start.getName() + "\",");
@@ -273,7 +292,7 @@ public class ScheduleController {
                 str.append("\"sid1\":" + s1.getSid() + ",");
                 str.append("\"sid2\":" + s2.getSid() + ",");
                 str.append("\"price\":" + price + ",");
-                str.append("\"ticket\":" + ticket + ",");
+                str.append("\"ticket\":[" + ticket[0] + "," + ticket[1] + "," + ticket[2] + "],");
                 str.append("\"time_a\":\"" + format.format(s1.getDepartureTime().getTime()) + "\",");
                 str.append("\"time_b\":\"" + format.format(s2.getArrivalTime().getTime()) + "\",");
                 str.append("\"time\":" + time + ",");

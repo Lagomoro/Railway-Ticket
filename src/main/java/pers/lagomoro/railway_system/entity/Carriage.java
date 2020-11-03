@@ -1,4 +1,4 @@
-package pers.lagomoro.railway_system.entity.unused;
+package pers.lagomoro.railway_system.entity;
 
 public class Carriage {
     private Integer cid;

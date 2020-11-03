@@ -1,6 +1,8 @@
 package pers.lagomoro.railway_system.service.impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import pers.lagomoro.railway_system.entity.Carriage;
+import pers.lagomoro.railway_system.entity.Link;
 import pers.lagomoro.railway_system.entity.SchedulePlus;
 import pers.lagomoro.railway_system.mapper.ScheduleMapper;
 import pers.lagomoro.railway_system.service.ScheduleService;
@@ -21,5 +23,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<SchedulePlus> getTrainSchedule(String tid) { return scheduleMapper.getTrainSchedule(tid); }
+
+    @Override
+    public List<Link> getTrainLink(String tid) {
+        return scheduleMapper.getTrainLink(tid);
+    }
+
+    @Override
+    public List<Carriage> getCarriage() {
+        return scheduleMapper.getCarriage();
+    }
 
 }

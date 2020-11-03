@@ -1,6 +1,6 @@
 package pers.lagomoro.railway_system.mapper.unused;
 
-import pers.lagomoro.railway_system.entity.unused.Carriage;
+import pers.lagomoro.railway_system.entity.Carriage;
 
 public interface CarriageMapper {
     int deleteByPrimaryKey(Integer cid);

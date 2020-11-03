@@ -50,6 +50,28 @@ public class TicketController {
         return scheduleList;
     }
 
+    private String getTime(List<SchedulePlus> scheduleList, int journey) {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        String s_journey = new StringBuilder(Integer.toBinaryString(journey)).reverse().toString();
+        boolean start = false;
+        String temp = "";
+        for(int i = 0; i < s_journey.length(); i++){
+            if(s_journey.charAt(i) == '1' && !start){
+                start = true;
+                temp += format.format(scheduleList.get(i).getDepartureTime()) + "-";
+            }
+            if(start && s_journey.charAt(i) == '0'){
+                temp += format.format(scheduleList.get(i).getArrivalTime());
+                break;
+            }
+            if(i == s_journey.length() - 1){
+                temp += format.format(scheduleList.get(i+1).getArrivalTime());
+                break;
+            }
+        }
+        return temp;
+    }
+
     private String generateStation(List<SchedulePlus> scheduleList, int journey) {
         String s_journey = new StringBuilder(Integer.toBinaryString(journey)).reverse().toString();
         boolean start = false;
@@ -135,28 +157,36 @@ public class TicketController {
         Passenger passenger = passengerService.getPassengerByPid(pid);
         List<SchedulePlus> scheduleList = this.getScheduleListByTid(tid);
 
-        int price = (int) Math.floor(this.getPrice(scheduleList, sid1, sid2) * new double[]{0.1, 0.05, 0.08}[type]);
+        double[] seat_price = new double[]{0.91, 0.49, 0.31};
+        double[] ticket_price = new double[]{0.5, 0.25, 0.4};
+        int price = (int) Math.floor(this.getPrice(scheduleList, sid1, sid2) * seat_price[seat_type] * ticket_price[type]);
         int journey = this.generateJourney(scheduleList, sid1, sid2);
+
+        String[] seat3 = new String[]{"A", "B", "C", "D", "F"};
+        String[] seat2 = new String[]{"A", "C", "D", "F"};
+        String[] seat1 = new String[]{"A", "C", "F"};
+        String[][] seatInfo = new String[][]{seat1, seat2, seat3};
 
         int seat_id = 0;
         List<Seat> seatList = templateSeatService.getSeatByInfo(tid, date);
-        boolean haveSeat = false, canPass = false;
+        List<Link> carriageLink = scheduleService.getTrainLink(tid);
+        boolean haveSeat = false;
         for(Seat seat: seatList){
-            canPass = false;
+            int carriageType = 0;
+            for(Link link: carriageLink){
+                if(link.getOrder() == seat.getCarriageOrder()){
+                    carriageType = link.getCid() - 1;
+                }
+            }
+            if(2 - carriageType != seat_type)
+                continue;
+            if(seat_select > 0 && !seat.getSeatNumber().startsWith(seatInfo[seat_type][seat_select - 1]))
+                continue;
             if(this.fitJourney(journey, seat.getJourney())){
-                if(seat_select > 0){
-                    if(seat.getSeatNumber().startsWith(new String[]{"N", "A", "B", "C", "D", "E"}[seat_select])){
-                        canPass = true;
-                    }
-                }else{
-                    canPass = true;
-                }
-                if(canPass){
-                    seat_id = seat.getSeatId();
-                    templateSeatService.modifyJourney(seat_id, journey + seat.getJourney());
-                    haveSeat = true;
-                    break;
-                }
+                seat_id = seat.getSeatId();
+                templateSeatService.modifyJourney(seat_id, journey + seat.getJourney());
+                haveSeat = true;
+                break;
             }
         }
         if(!haveSeat) {
@@ -207,20 +237,35 @@ public class TicketController {
             StringBuilder str = new StringBuilder();
             str.append("{\"status\": 200, \"data\":[");
             List<Order> orderList = orderService.getOrderByUid(uid);
+            List<Carriage> carriageList = scheduleService.getCarriage();
             boolean have = false;
             for(Order order : orderList){
                 Ticket ticket = ticketService.getTicketByOid(order.getOid()).get(0);
                 Seat seat = templateSeatService.getSeatBySeatId(ticket.getSeatId());
                 List<SchedulePlus> scheduleList = this.getScheduleListByTid(seat.getTid());
+                List<Link> carriageLink = scheduleService.getTrainLink(seat.getTid());
+                int carriage_type = 1;
+                for(Link link : carriageLink){
+                    if(link.getOrder() == seat.getCarriageOrder()){
+                        carriage_type = link.getCid();
+                    }
+                }
+                String temp_number = (seat.getCarriageOrder() < 10 ? "0" : "") +
+                        seat.getCarriageOrder() + "车" + seat.getSeatNumber() + "号";
+
+                String[] schedule = this.getTime(scheduleList, ticket.getJourney()).split("-");
 
                 str.append("{\"oid\":" + order.getOid() + ",");
                 str.append("\"time\":\"" + order.getTime() + "\",");
                 str.append("\"price\":" + order.getPrice() + ",");
                 str.append("\"ticket_id\":" + ticket.getTicketId() + ",");
+                str.append("\"date\":\"" + seat.getDate() + "\",");
+                str.append("\"schedule\":[\"" + schedule[0] + "\",\"" + schedule[1] + "\"],");
                 str.append("\"passenger\":\"" + ticket.getPassengerName() + "\",");
                 str.append("\"identity\":\"" + ticket.getPassengerIdentity() + "\",");
                 str.append("\"journey\":\"" + this.generateStation(scheduleList, ticket.getJourney()) + "\",");
-                str.append("\"seat_number\":\"" + seat.getSeatNumber() + "\",");
+                str.append("\"seat_type\":\"" + carriageList.get(carriage_type - 1).getName() + "\",");
+                str.append("\"seat_number\":\"" + temp_number + "\",");
                 str.append("\"tid\":\"" + seat.getTid() + "\"");
                 str.append("},");
                 have = true;
@@ -245,10 +290,22 @@ public class TicketController {
             }
         }
 
+        String[] seat1 = new String[]{"A", "B", "C", "D", "F"};
+        String[] seat2 = new String[]{"A", "C", "D", "F"};
+        String[] seat3 = new String[]{"A", "C", "F"};
+        String[][] seat = new String[][]{seat1, seat2, seat3};
+
+        List<Carriage> carriageList = scheduleService.getCarriage();
         for(String tid : tidList){
-            for(int i = 0; i < 5; i++){
-                for(int j = 0; j < 10;j++){
-                    templateSeatService.addSeat(new Seat(0, tid, date, 1, new String[]{"A", "B", "C", "D", "E"}[i] + j, 0));
+            List<Link> carriageLink = scheduleService.getTrainLink(tid);
+            for(int k = 0;k < carriageLink.size(); k++) {
+                Link link = carriageLink.get(k);
+                Carriage carriage = carriageList.get(link.getCid() - 1);
+
+                for (int i = 0; i < carriage.getLine(); i++) {
+                    for (int j = 0; j < carriage.getRow(); j++) {
+                        templateSeatService.addSeat(new Seat(0, tid, date, k + 1, seat[carriage.getCid() - 1][i] + (j + 1), 0));
+                    }
                 }
             }
         }
@@ -273,7 +330,6 @@ public class TicketController {
             List<Seat> seatList = templateSeatService.getSeatByInfo(tid, date);
             for(Seat seat: seatList){
                 int id = seat.getSeatId();
-                System.out.println(id);
                 templateSeatService.deleteSeat(id);
             }
         }

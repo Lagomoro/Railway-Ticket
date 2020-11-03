@@ -9,17 +9,17 @@ public class Seat {
 
     private String date;
 
-    private Integer carriageOrder;
+    private Integer carriage_order;
 
     private String seat_number;
 
     private Integer journey;
 
-    public Seat(Integer seat_id, String tid, String date, Integer carriageOrder, String seat_number, Integer journey) {
+    public Seat(Integer seat_id, String tid, String date, Integer carriage_order, String seat_number, Integer journey) {
         this.seat_id = seat_id;
         this.tid = tid;
         this.date = date;
-        this.carriageOrder = carriageOrder;
+        this.carriage_order = carriage_order;
         this.seat_number = seat_number;
         this.journey = journey;
     }
@@ -53,11 +53,11 @@ public class Seat {
     }
 
     public Integer getCarriageOrder() {
-        return carriageOrder;
+        return carriage_order;
     }
 
-    public void setCarriageOrder(Integer carriageOrder) {
-        this.carriageOrder = carriageOrder;
+    public void setCarriageOrder(Integer carriage_order) {
+        this.carriage_order = carriage_order;
     }
 
     public String getSeatNumber() {

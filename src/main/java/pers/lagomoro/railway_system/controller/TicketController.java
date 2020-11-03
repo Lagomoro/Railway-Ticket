@@ -158,8 +158,10 @@ public class TicketController {
         List<SchedulePlus> scheduleList = this.getScheduleListByTid(tid);
 
         double[] seat_price = new double[]{0.91, 0.49, 0.31};
+        double[] student_price = new double[]{0.5, 0.5, 0.4};
         double[] ticket_price = new double[]{0.5, 0.25, 0.4};
-        int price = (int) Math.floor(this.getPrice(scheduleList, sid1, sid2) * seat_price[seat_type] * ticket_price[type]);
+        double percent = seat_price[seat_type] * (type == 2 ? student_price[seat_type] : ticket_price[type]);
+        int price = (int) Math.floor(this.getPrice(scheduleList, sid1, sid2) * percent);
         int journey = this.generateJourney(scheduleList, sid1, sid2);
 
         String[] seat3 = new String[]{"A", "B", "C", "D", "F"};
